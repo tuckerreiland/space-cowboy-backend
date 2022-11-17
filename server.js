@@ -1,27 +1,28 @@
-const express = require("express");
-const cors = require("cors");
+const express = require('express');
+const allRoutes = require('./routes');
+const mongoose = require('./config/connection');
+const cors = require("cors")
+require('dotenv').config()
 
+// Sets up the Express App
+// =============================================================
 const app = express();
+app.use(cors())
+const PORT = process.env.PORT || 3001;
+// Requiring our models for syncing
+const { User, Post, Group, Comment } = require('./models');
 
-var corsOptions = {
-  origin: "http://localhost:3000"
-};
-
-app.use(cors(corsOptions));
-
-// parse requests of content-type - application/json
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// parse requests of content-type - application/x-www-form-urlencoded
-app.use(express.urlencoded({ extended: true }));
+app.use('/', allRoutes);
 
-// simple route
-app.get("/", (req, res) => {
-  res.json({ message: "Welcome to the Space Cowboy backend." });
-});
+app.get('/',  (req, res) => {
+	res.json({ message: "Welcome to the Space Cowboy backend." });
+  })
 
-// set port, listen for requests
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
+mongoose.once('open',() => {
+    app.listen(PORT, () => {
+		console.log(`API server running on port http://localhost:${PORT} !`);
+	  });
 });
